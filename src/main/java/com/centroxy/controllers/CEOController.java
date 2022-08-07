@@ -1,6 +1,7 @@
 package com.centroxy.controllers;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -41,12 +42,16 @@ public class CEOController {
 	private final INotificationService notificationService;
 	private final SimpMessagingTemplate template;
 
+	private final Notification notification;
+
+
 	@Autowired
-	public CEOController(ICEOService ceoService, JobDescriptionService jobDescriptionService, INotificationService notificationService,SimpMessagingTemplate template) {
+	public CEOController(ICEOService ceoService, JobDescriptionService jobDescriptionService, INotificationService notificationService,SimpMessagingTemplate template,Notification notification) {
 		this.ceoService = ceoService;
 		this.jobDescriptionService = jobDescriptionService;
 		this.notificationService = notificationService;
 		this.template= template;
+		this.notification =notification;
 	}
 
 	// To add new project by CEO
@@ -73,6 +78,21 @@ public class CEOController {
 		return ResponseEntity.ok(demands);
 	}
 
+	@MessageMapping("/extractAllDemands")
+	public void fetchAllDemands() throws Exception {
+
+		System.out.println("API called...............");
+
+		List<JobDescription> demands = jobDescriptionService.getDemands();
+
+		JSONObject details = new JSONObject();
+
+		details.put("demands", demands);
+		//System.out.println("notifications"+notifications);
+		template.convertAndSend("/message/demands", details);
+
+	}
+
 	/**
 	 * @author Subhasmita Panda 07-July-2022 11:47:27 am
 	 */
@@ -93,12 +113,28 @@ public class CEOController {
 		System.out.println(jobDescriptionObj);
 		if (status.equals("accept")) {
 			jobDescriptionObj.setApproved(true);
-			jobDescriptionService.saveJd(jobDescriptionObj);
+			JobDescription approvedJD = jobDescriptionService.saveJd(jobDescriptionObj);
+			notification.setId(Notification.generateId());
+			notification.setCausedFor("New Employee Added");
+			notification.setTriggeredBy("CEO");
+			notification.setReceivedBy("PM,HR");
+			notification.setDateTime(LocalDateTime.now());
+			notification.setIsRead(false);
+			notification.setJd(approvedJD);
+			notificationService.saveNotification(notification);
 			return ResponseEntity.ok("Resource demand accepted");
 
 		} else {
 			jobDescriptionObj.setApproved(false);
-			jobDescriptionService.saveJd(jobDescriptionObj);
+			JobDescription rejectedJD = jobDescriptionService.saveJd(jobDescriptionObj);
+			notification.setId(Notification.generateId());
+			notification.setCausedFor("New Employee Added");
+			notification.setTriggeredBy("CEO");
+			notification.setReceivedBy("PM,HR");
+			notification.setDateTime(LocalDateTime.now());
+			notification.setIsRead(false);
+			notification.setJd(rejectedJD);
+			notificationService.saveNotification(notification);
 			return ResponseEntity.ok("Resource demand rejected");
 
 		}

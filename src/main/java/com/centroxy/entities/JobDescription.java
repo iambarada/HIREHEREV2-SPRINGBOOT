@@ -44,7 +44,7 @@ public class JobDescription {
 	private String positionFor;
 	
 	@NotEmpty(message = "Responsibilites shouldnot be empty")
-	@Column(length = 1000)
+	@Column(length = 5000)
 	private String responsibilites;
 	
 	private boolean isApproved;
