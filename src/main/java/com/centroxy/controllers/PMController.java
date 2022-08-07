@@ -4,9 +4,14 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.centroxy.entities.Notification;
+import com.centroxy.services.INotificationService;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,10 +36,16 @@ public class PMController {
 
 	private IPMService ipmService;
 
+	private final SimpMessagingTemplate template;
+
+	private final INotificationService notificationService;
+
 	@Autowired
-	public PMController(JobDescriptionService jobDescriptionService, IPMService ipmService) {
+	public PMController(JobDescriptionService jobDescriptionService,SimpMessagingTemplate template, IPMService ipmService,INotificationService notificationService) {
 		this.jobDescriptionService = jobDescriptionService;
+		this.template= template;
 		this.ipmService = ipmService;
+		this.notificationService =notificationService;
 	}
 
 	// For Demanding Resource by PM
@@ -66,6 +77,21 @@ public class PMController {
 		String assignProject = ipmService.assignProject(listOfEmp, projectId);
 
 		return new ResponseEntity<String>(assignProject, HttpStatus.OK);
+
+	}
+
+	@MessageMapping("/extractAllPMNotifications")
+	public void fetchAllNotifications() throws Exception {
+
+		System.out.println("API called...............");
+
+		List<Notification> notifications = notificationService.fetchAllNotificationsForPM();
+
+		JSONObject details = new JSONObject();
+
+		details.put("notifications", notifications);
+		System.out.println("notifications"+notifications);
+		template.convertAndSend("/message/pm/notifications", details);
 
 	}
 

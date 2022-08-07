@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.centroxy.entities.Notification;
+import com.centroxy.services.INotificationService;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,13 +53,16 @@ public class HRController {
 
 	private JobDescriptionService jobDescriptionService;
 
+	private INotificationService notificationService;
+
 	@Autowired
 	public HRController(IInterviewPanelService interviewPanelService, IInterviewService interviewService,
-			SimpMessagingTemplate template, JobDescriptionService jobDescriptionService) {
+			SimpMessagingTemplate template, JobDescriptionService jobDescriptionService,INotificationService notificationService) {
 		this.interviewPanelService = interviewPanelService;
 		this.interviewService = interviewService;
 		this.template = template;
 		this.jobDescriptionService = jobDescriptionService;
+		this.notificationService= notificationService ;
 	}
 
 	@PostMapping("/interviewPanel")
@@ -189,6 +194,21 @@ public class HRController {
 			interviewService.createInterview(interviewObj);
 			return new ResponseEntity<>("Candidate Rejected ", HttpStatus.OK);
 		}
+
+	}
+
+	@MessageMapping("/extractAllHRNotifications")
+	public void fetchAllNotifications() throws Exception {
+
+		System.out.println("API called...............");
+
+		List<Notification> notifications = notificationService.fetchAllNotificationsForHR();
+
+		JSONObject details = new JSONObject();
+
+		details.put("notifications", notifications);
+		//System.out.println("notifications"+notifications);
+		template.convertAndSend("/message/hr/notifications", details);
 
 	}
 

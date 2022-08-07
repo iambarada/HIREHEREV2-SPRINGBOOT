@@ -26,7 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.centroxy.entities.Employee;
+import com.centroxy.entities.Notification;
 import com.centroxy.services.IEmployeeService;
+import com.centroxy.services.INotificationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
@@ -42,10 +44,16 @@ public class EmployeeController {
 
 	private final SimpMessagingTemplate template;
 
+	private final Notification notification;
+
+	private final INotificationService notificationService;
+
 	@Autowired
-	public EmployeeController(IEmployeeService employeeService, SimpMessagingTemplate template) {
+	public EmployeeController(IEmployeeService employeeService, SimpMessagingTemplate template , Notification notification, INotificationService notificationService) {
 		this.employeeService = employeeService;
 		this.template = template;
+		this.notification = notification;
+		this.notificationService = notificationService;
 	}
 
 	// Creating New Employee
@@ -62,6 +70,14 @@ public class EmployeeController {
 		Employee savedEmployee = employeeService.save(employee);
 
 		if (savedEmployee != null) {
+			notification.setId(Notification.generateId());
+			notification.setCausedFor("New Employee Added");
+			notification.setTriggeredBy("HR");
+			notification.setReceivedBy("PM");
+			notification.setDateTime(LocalDateTime.now());
+			notification.setIsRead(false);
+			notification.setEmp(savedEmployee);
+			notificationService.saveNotification(notification);
 			return new ResponseEntity<String>("Employee Saved Suceessfully", HttpStatus.OK);
 		}else {
 			return new ResponseEntity<String>("Employee Details Failed to save", HttpStatus.BAD_REQUEST);

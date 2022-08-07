@@ -5,9 +5,14 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.centroxy.entities.Notification;
+import com.centroxy.services.INotificationService;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,10 +38,15 @@ public class CEOController {
 
 	private JobDescriptionService jobDescriptionService;
 
+	private final INotificationService notificationService;
+	private final SimpMessagingTemplate template;
+
 	@Autowired
-	public CEOController(ICEOService ceoService, JobDescriptionService jobDescriptionService) {
+	public CEOController(ICEOService ceoService, JobDescriptionService jobDescriptionService, INotificationService notificationService,SimpMessagingTemplate template) {
 		this.ceoService = ceoService;
 		this.jobDescriptionService = jobDescriptionService;
+		this.notificationService = notificationService;
+		this.template= template;
 	}
 
 	// To add new project by CEO
@@ -92,6 +102,21 @@ public class CEOController {
 			return ResponseEntity.ok("Resource demand rejected");
 
 		}
+	}
+
+	@MessageMapping("/extractAllCEONotifications")
+	public void fetchAllNotifications() throws Exception {
+
+		System.out.println("API called...............");
+
+		List<Notification> notifications = notificationService.fetchAllNotificationsForCEO();
+
+		JSONObject details = new JSONObject();
+
+		details.put("notifications", notifications);
+		System.out.println("notifications"+notifications);
+		template.convertAndSend("/message/ceo/notifications", details);
+
 	}
 
 }
