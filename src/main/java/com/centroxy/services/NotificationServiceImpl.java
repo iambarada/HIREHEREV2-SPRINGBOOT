@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class NotificationServiceImpl implements INotificationService {
-    NotificationRepository notificationRepository;
+    private final NotificationRepository notificationRepository;
 
     @Autowired
     public NotificationServiceImpl(NotificationRepository notificationRepository) {

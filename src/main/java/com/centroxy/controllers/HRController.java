@@ -45,15 +45,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 @CrossOrigin(origins = "http://localhost:4200")
 public class HRController {
 
-	IInterviewPanelService interviewPanelService;
-
-	private IInterviewService interviewService;
-
+	private final IInterviewPanelService interviewPanelService;
+	private final IInterviewService interviewService;
 	private final SimpMessagingTemplate template;
-
-	private JobDescriptionService jobDescriptionService;
-
-	private INotificationService notificationService;
+	private final JobDescriptionService jobDescriptionService;
+	private final INotificationService notificationService;
 
 	@Autowired
 	public HRController(IInterviewPanelService interviewPanelService, IInterviewService interviewService,

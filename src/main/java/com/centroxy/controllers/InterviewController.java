@@ -18,9 +18,9 @@ import com.centroxy.services.IInterviewService;
 
 @RestController
 @RequestMapping("/interview")
-@CrossOrigin(origins = "http://")
+@CrossOrigin(origins = "http://localhost:4200")
 public class InterviewController {
-	private IInterviewService interviewService;
+	private final IInterviewService interviewService;
 	
 	@Autowired
 	public InterviewController(IInterviewService interviewService) {

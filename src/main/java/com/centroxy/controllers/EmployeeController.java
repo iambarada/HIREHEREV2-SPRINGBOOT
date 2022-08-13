@@ -41,11 +41,8 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 public class EmployeeController {
 
 	private final IEmployeeService employeeService;
-
 	private final SimpMessagingTemplate template;
-
 	private final Notification notification;
-
 	private final INotificationService notificationService;
 
 	@Autowired

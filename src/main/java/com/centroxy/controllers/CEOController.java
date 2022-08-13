@@ -14,13 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.centroxy.entities.JobDescription;
@@ -33,15 +27,13 @@ import com.centroxy.services.JobDescriptionService;
  */
 @RestController
 @RequestMapping("/ceo")
+@CrossOrigin(origins = "http://localhost:4200")
 public class CEOController {
 
-	private ICEOService ceoService;
-
-	private JobDescriptionService jobDescriptionService;
-
+	private final ICEOService ceoService;
+	private final JobDescriptionService jobDescriptionService;
 	private final INotificationService notificationService;
 	private final SimpMessagingTemplate template;
-
 	private final Notification notification;
 
 
@@ -65,7 +57,6 @@ public class CEOController {
 			return new ResponseEntity<String>("Project added successfully", HttpStatus.OK);
 		}
 		return new ResponseEntity<String>("Project Adding Failed", HttpStatus.BAD_REQUEST);
-
 	}
 
 	/**
@@ -80,17 +71,10 @@ public class CEOController {
 
 	@MessageMapping("/extractAllDemands")
 	public void fetchAllDemands() throws Exception {
-
-		System.out.println("API called...............");
-
 		List<JobDescription> demands = jobDescriptionService.getDemands();
-
 		JSONObject details = new JSONObject();
-
 		details.put("demands", demands);
-		//System.out.println("notifications"+notifications);
 		template.convertAndSend("/message/demands", details);
-
 	}
 
 	/**
@@ -110,12 +94,11 @@ public class CEOController {
 	@GetMapping(value = "/set/{status}/{id}")
 	public ResponseEntity<String> demandStatus(@PathVariable String status, @PathVariable String id) {
 		JobDescription jobDescriptionObj = jobDescriptionService.getDemandById(id);
-		System.out.println(jobDescriptionObj);
 		if (status.equals("accept")) {
-			jobDescriptionObj.setApproved(true);
+			jobDescriptionObj.setIsApproved("Approved");
 			JobDescription approvedJD = jobDescriptionService.saveJd(jobDescriptionObj);
 			notification.setId(Notification.generateId());
-			notification.setCausedFor("New Employee Added");
+			notification.setCausedFor("Demand Approved");
 			notification.setTriggeredBy("CEO");
 			notification.setReceivedBy("PM,HR");
 			notification.setDateTime(LocalDateTime.now());
@@ -123,36 +106,28 @@ public class CEOController {
 			notification.setJd(approvedJD);
 			notificationService.saveNotification(notification);
 			return ResponseEntity.ok("Resource demand accepted");
-
 		} else {
-			jobDescriptionObj.setApproved(false);
+			jobDescriptionObj.setIsApproved("Rejected");
 			JobDescription rejectedJD = jobDescriptionService.saveJd(jobDescriptionObj);
 			notification.setId(Notification.generateId());
-			notification.setCausedFor("New Employee Added");
+			notification.setCausedFor("Demand Rejected");
 			notification.setTriggeredBy("CEO");
-			notification.setReceivedBy("PM,HR");
+			notification.setReceivedBy("PM");
 			notification.setDateTime(LocalDateTime.now());
 			notification.setIsRead(false);
 			notification.setJd(rejectedJD);
 			notificationService.saveNotification(notification);
 			return ResponseEntity.ok("Resource demand rejected");
-
 		}
 	}
 
 	@MessageMapping("/extractAllCEONotifications")
 	public void fetchAllNotifications() throws Exception {
-
-		System.out.println("API called...............");
-
 		List<Notification> notifications = notificationService.fetchAllNotificationsForCEO();
-
 		JSONObject details = new JSONObject();
-
 		details.put("notifications", notifications);
 		System.out.println("notifications"+notifications);
 		template.convertAndSend("/message/ceo/notifications", details);
-
 	}
 
 }

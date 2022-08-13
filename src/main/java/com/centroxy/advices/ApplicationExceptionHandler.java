@@ -83,8 +83,7 @@ public class ApplicationExceptionHandler {
 	public ResponseEntity<Object> handleEmployeeNotFoundException(ConstraintViolationException constraintViolationException) {
 		String error ="";
 		List<ExceptionResponse> errors = new ArrayList<>();
-		//ExceptionResponse response = new ExceptionResponse();
-		
+
 		for (ConstraintViolation<?> violation : constraintViolationException.getConstraintViolations()) {
 			ExceptionResponse response = new ExceptionResponse();
 			response.setMessage(violation.getMessage());

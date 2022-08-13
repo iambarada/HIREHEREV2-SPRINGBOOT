@@ -17,7 +17,7 @@ import com.centroxy.repositories.JobDescriptionRepository;
 @Service
 public class JobDescriptionServiceImpl implements JobDescriptionService {
 
-	JobDescriptionRepository jobDescriptionRepository;
+	private final JobDescriptionRepository jobDescriptionRepository;
 
 	@Autowired
 	public JobDescriptionServiceImpl(JobDescriptionRepository jobDescriptionRepository) {

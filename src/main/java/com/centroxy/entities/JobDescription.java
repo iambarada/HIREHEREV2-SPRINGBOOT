@@ -47,7 +47,7 @@ public class JobDescription {
 	@Column(length = 5000)
 	private String responsibilites;
 	
-	private boolean isApproved;
+	private String isApproved;
 	
 	@Column(length = 1000)
 	private String remarks;

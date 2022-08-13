@@ -18,9 +18,8 @@ import com.centroxy.services.ICEOService;
 
 @Controller
 public class ProjectController {
-	@Autowired
-	private ICEOService ceoService;
 
+	private final ICEOService ceoService;
 	private final SimpMessagingTemplate template;
 
 	@Autowired
@@ -34,15 +33,11 @@ public class ProjectController {
 	 * @author ${Badal Kumar Sahoo} Jul 7, 2022 11:51:17 AM
 	 * 
 	 */
-
 	// This method is used for fetch Project by ProjectId
 	@GetMapping("/project/{projectId}")
 	public ResponseEntity<Project> findProjectById(@PathVariable("projectId") String id) {
-
 		Project project = ceoService.findProjectById(id);
-
 		return new ResponseEntity<Project>(project, HttpStatus.OK);
-
 	}
 
 	/**
@@ -50,21 +45,13 @@ public class ProjectController {
 	 * @author Badal 13-Jul-2022 2:29:35 pm
 	 * 
 	 */
-
 	// This method is used for get a Project by projectId by using websocket
-
-	@SuppressWarnings("unchecked")
 	@MessageMapping("/getProject/{projectId}")
 	public void getProjectById(@DestinationVariable String projectId) throws Exception {
-
 		Project project = ceoService.findProjectById(projectId);
-
 		JSONObject details = new JSONObject();
-
 		details.put("project", project);
-
 		template.convertAndSend("/message/projectById", details);
-
 	}
 
 	/**
@@ -72,17 +59,11 @@ public class ProjectController {
 	 * @author ${Badal Kumar Sahoo} Jul 7, 2022 11:51:17 AM
 	 * 
 	 */
-
 	// This method is used for fetch all the projects
-
 	@GetMapping("/allprojects")
-
 	public ResponseEntity<List<Project>> fetchAllProjects() {
-
 		List<Project> allProjects = ceoService.fetchAllProjects();
-
 		return new ResponseEntity<>(allProjects, HttpStatus.OK);
-
 	}
 
 	/**
@@ -91,7 +72,6 @@ public class ProjectController {
 	 * 
 	 */
 	// This method is used for get all Projects by using websocket
-	@SuppressWarnings("unchecked")
 	@MessageMapping("/getAllProject")
 	public void getAllProjects() throws Exception {
 		List<Project> allProjects = ceoService.fetchAllProjects();

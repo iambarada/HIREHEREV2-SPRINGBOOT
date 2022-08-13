@@ -15,7 +15,7 @@ import com.centroxy.repositories.ProjectRepository;
  */
 @Service
 public class CEOServiceImpl implements ICEOService {
-	private ProjectRepository projectRepository;
+	private final ProjectRepository projectRepository;
 
 	@Autowired
 	public CEOServiceImpl(ProjectRepository projectRepository) {

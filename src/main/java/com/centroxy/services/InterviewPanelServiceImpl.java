@@ -15,7 +15,7 @@ import com.centroxy.repositories.InterviewPanelRepository;
 @Service
 public class InterviewPanelServiceImpl implements IInterviewPanelService {
 
-	InterviewPanelRepository interviewRepository;
+	private final InterviewPanelRepository interviewRepository;
 
 	@Autowired
 	public InterviewPanelServiceImpl(InterviewPanelRepository interviewRepository) {

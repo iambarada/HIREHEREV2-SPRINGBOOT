@@ -32,9 +32,9 @@ import com.centroxy.repositories.ProjectRepository;
 
 public class PMServiceImpl implements IPMService {
 
-	private EmployeeRepository employeeRepository;
+	private final EmployeeRepository employeeRepository;
 
-	private ProjectRepository projectRepository;
+	private final ProjectRepository projectRepository;
 
 	@Autowired
 	public PMServiceImpl(EmployeeRepository employeeRepository, ProjectRepository projectRepository) {

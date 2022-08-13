@@ -32,12 +32,9 @@ import com.centroxy.services.JobDescriptionService;
 @CrossOrigin(origins = "http://localhost:4200")
 public class PMController {
 
-	JobDescriptionService jobDescriptionService;
-
-	private IPMService ipmService;
-
+	private final JobDescriptionService jobDescriptionService;
+	private final IPMService ipmService;
 	private final SimpMessagingTemplate template;
-
 	private final INotificationService notificationService;
 
 	@Autowired
@@ -52,12 +49,12 @@ public class PMController {
 	@PostMapping("/demandresource")
 	public ResponseEntity<String> createDemand(@Valid @RequestBody JobDescription jobDescription) {
 		System.out.println(jobDescription);
+		jobDescription.setIsApproved("Pending");
 		JobDescription savedJD = jobDescriptionService.saveJd(jobDescription);
 		if (savedJD != null) {
 			return new ResponseEntity<String>("Demand Posted successfully", HttpStatus.OK);
 		}
 		return new ResponseEntity<String>("Demand Posting Failed", HttpStatus.BAD_REQUEST);
-
 	}
 
 	/**
@@ -65,34 +62,21 @@ public class PMController {
 	 * Badal 12-Jul-2022 5:44:12 pm
 	 * 
 	 */
-
 	// This method is used for assign the Project to Employee
-
 	@PostMapping("/assignProject/{projectId}")
 	public ResponseEntity<String> assignProjectToEmployee(@RequestBody List<Employee> listOfEmp,
-
 			@PathVariable String projectId) {
-		System.out.println(listOfEmp);
-
 		String assignProject = ipmService.assignProject(listOfEmp, projectId);
-
 		return new ResponseEntity<String>(assignProject, HttpStatus.OK);
-
 	}
 
 	@MessageMapping("/extractAllPMNotifications")
 	public void fetchAllNotifications() throws Exception {
-
-		System.out.println("API called...............");
-
 		List<Notification> notifications = notificationService.fetchAllNotificationsForPM();
-
 		JSONObject details = new JSONObject();
-
 		details.put("notifications", notifications);
 		System.out.println("notifications"+notifications);
 		template.convertAndSend("/message/pm/notifications", details);
-
 	}
 
 }
